@@ -56,7 +56,7 @@ export const forgotPassword = async (req, res) => {
     const resetTokenExpiry = Date.now() + 3600000; // 1 hour in milliseconds
 
     const resetIdentifier = uuidv4();
-    const resetUrl = `https://gilded-babka-646fb2.netlify.app/api/auth/reset-password/${resetIdentifier}`;
+    const resetUrl = `https://elegant-unicorn-a11934.netlify.app/api/auth/reset-password/${resetIdentifier}`;
 
     user.resetPasswordToken = resetToken;
     user.resetPasswordIdentifier = resetIdentifier;
