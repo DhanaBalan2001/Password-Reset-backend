@@ -9,9 +9,7 @@ dotenv.config();
 const app = express();
 
 app.use(express.json());
-app.use(cors({
-  origin: 'https://flourishing-fudge-b8b65a.netlify.app/'
-}));
+app.use(cors());
 
 mongoose.connect(process.env.MONGODB)
   .then(() => console.log('Connected to MongoDB'))
