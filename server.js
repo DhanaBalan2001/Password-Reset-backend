@@ -10,7 +10,7 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({
-  origin: 'https://prismatic-pithivier-3b5e98.netlify.app'
+  origin: 'https://flourishing-fudge-b8b65a.netlify.app/'
 }));
 
 mongoose.connect(process.env.MONGODB)
