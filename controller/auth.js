@@ -56,7 +56,7 @@ export const forgotPassword = async (req, res) => {
     const resetTokenExpiry = Date.now() + 3600000; // 1 hour in milliseconds
 
     const resetIdentifier = uuidv4();
-    const resetUrl = `http://localhost:5000/api/auth/reset-password/${resetIdentifier}`;
+    const resetUrl = `http://localhost:3000/reset-password/${resetIdentifier}`;
 
     user.resetPasswordToken = resetToken;
     user.resetPasswordIdentifier = resetIdentifier;
@@ -66,10 +66,20 @@ export const forgotPassword = async (req, res) => {
     console.log('Reset token:', resetToken);
 
     const message = `
-      Please click on the following link to reset your password:
+      Dear user,
+
+      We received a request to reset your password. To proceed with the password reset, please click on the secure link below:
+
       ${resetUrl}
-      If you did not request this, please ignore this email.
-      This link will expire in 1 hour.
+
+      For your security, this link will expire in 1 hour.
+
+      If you didn't initiate this request, please disregard this email. Your account remains secure, and no changes have been made.
+
+      If you have any concerns or need assistance, please don't hesitate to contact our support team.
+
+      Best regards,
+      The Support Team
     `;
 
     await sendEmail(
@@ -89,12 +99,15 @@ export const forgotPassword = async (req, res) => {
 
 export const resetPassword = async (req, res) => {
   try {
-    const { token } = req.params;
+    const { resetIdentifier } = req.params;
     const { password } = req.body;
 
-    // Find user with the given reset token and check if it's still valid
+    if (!password) {
+      return res.status(400).json({ message: 'Password is required' });
+    }
+
     const user = await User.findOne({
-      resetPasswordToken: token,
+      resetPasswordIdentifier: resetIdentifier,
       resetPasswordExpires: { $gt: Date.now() }
     });
 
@@ -102,11 +115,8 @@ export const resetPassword = async (req, res) => {
       return res.status(400).json({ message: 'Password reset token is invalid or has expired' });
     }
 
-    // Set the new password
     user.password = password;
-    
-    // Clear the reset token fields
-    user.resetPasswordToken = undefined;
+    user.resetPasswordIdentifier = undefined;
     user.resetPasswordExpires = undefined;
 
     await user.save();
@@ -115,5 +125,22 @@ export const resetPassword = async (req, res) => {
   } catch (error) {
     console.error('Reset password error:', error);
     res.status(500).json({ message: 'Error in reset password process' });
+  }
+};
+
+export const validateResetToken = async (req, res) => {
+  const { resetIdentifier } = req.params;
+  try {
+    const user = await User.findOne({
+      resetPasswordIdentifier: resetIdentifier,
+      resetPasswordExpires: { $gt: Date.now() }
+    });
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid or expired reset identifier' });
+    }
+    res.status(200).json({ message: 'Token is valid' });
+  } catch (error) {
+    console.error('Validate reset token error:', error);
+    res.status(500).json({ message: 'Error validating reset token' });
   }
 };
