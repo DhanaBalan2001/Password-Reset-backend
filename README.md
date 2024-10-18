@@ -1,4 +1,4 @@
-#PASSWORD RESET FLOW 
+PASSWORD RESET FLOW :
 
    1. Overview :
       
